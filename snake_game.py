@@ -16,20 +16,32 @@ LEFT = 3
 
 class Player:
     def __init__(self):
-        self.x = 10
-        self.y = 10
+        self.x = [10, 9, 8]
+        self.y = [10, 10, 10]
+        self.length = 3
         self.speed = 1
-        self.direction = RIGHT
+        self.direction = RIGHT # 初期移動方向は右
 
-    def move(self):
+    def move(self): #x,yの後ろを吐き出して，先頭に座標を追加することで移動
+        self.x.pop() 
+        self.y.pop()
+        
         if (self.direction == UP):
-            self.y -= 1
+            # self.y -= 1
+            self.x.insert(0, self.x[0])
+            self.y.insert(0, self.y[0]-1)
         elif (self.direction == RIGHT):
-            self.x += 1
+            # self.x += 1
+            self.x.insert(0, self.x[0]+1)
+            self.y.insert(0, self.y[0])
         elif (self.direction == DOWN):
-            self.y += 1
+            # self.y += 1
+            self.x.insert(0, self.x[0])
+            self.y.insert(0, self.y[0]+1)
         else:
-            self.x -= 1
+            # self.x -= 1
+            self.x.insert(0, self.x[0]-1)
+            self.y.insert(0, self.y[0])
 
 class App:
     screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
@@ -64,7 +76,7 @@ class App:
                 pygame.display.update()
             
             timer_count += 1
-            if (timer_count == 60000/self.player.speed):
+            if (timer_count == 60000/self.player.speed): # playerの移動
                 self.player.move()
                 self.draw_window()
                 self.draw_player()
@@ -93,8 +105,9 @@ class App:
             pygame.draw.rect(self.screen, (200, 200, 200), rect)
 
     def draw_player(self):
-        rect = pygame.Rect(20+BLOCK_SIZE*self.player.x, 20+BLOCK_SIZE*self.player.y, BLOCK_SIZE, BLOCK_SIZE)
-        pygame.draw.rect(self.screen, (80, 200, 120), rect)       
+        for i in range(self.player.length):
+            rect = pygame.Rect(20+BLOCK_SIZE*self.player.x[i], 20+BLOCK_SIZE*self.player.y[i], BLOCK_SIZE, BLOCK_SIZE)
+            pygame.draw.rect(self.screen, (80, 200, 120), rect)       
             
 
  
