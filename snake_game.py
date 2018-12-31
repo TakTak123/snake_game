@@ -9,24 +9,27 @@ AREA_WIDTH = BLOCK_SIZE * COLUMN_COUNT
 AREA_HEIGHT = BLOCK_SIZE * ROW_COUNT
 WIN_WIDTH = AREA_WIDTH + 200
 WIN_HEIGHT = AREA_HEIGHT + 200
+UP = 0
+RIGHT = 1
+DOWN = 2
+LEFT = 3
 
 class Player:
-    x = 10
-    y = 10
-    speed = 1
+    def __init__(self):
+        self.x = 10
+        self.y = 10
+        self.speed = 1
+        self.direction = RIGHT
 
-
-    def move_right(self):
-        self.x += 1
- 
-    def move_left(self):
-        self.x -= 1
- 
-    def move_up(self):
-        self.y -= 1
- 
-    def move_down(self):
-        self.y += 1
+    def move(self):
+        if (self.direction == UP):
+            self.y -= 1
+        elif (self.direction == RIGHT):
+            self.x += 1
+        elif (self.direction == DOWN):
+            self.y += 1
+        else:
+            self.x -= 1
 
 class App:
     screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
@@ -40,17 +43,18 @@ class App:
         self.draw_player()
         pygame.display.update()
 
+        timer_count = 0
         while True:
             for event in pygame.event.get():
                 if event.type == KEYDOWN:
                     if event.key == K_RIGHT:
-                        self.player.move_right()
+                        self.player.direction = RIGHT
                     if event.key == K_LEFT:
-                        self.player.move_left()
+                        self.player.direction = LEFT
                     if event.key == K_UP:
-                        self.player.move_up()
+                        self.player.direction = UP
                     if event.key == K_DOWN:
-                        self.player.move_down()
+                        self.player.direction = DOWN
                     self.draw_window()
                     self.draw_player()  
 
@@ -58,6 +62,15 @@ class App:
                     pygame.quit()
                     sys.exit
                 pygame.display.update()
+            
+            timer_count += 1
+            if (timer_count == 60000/self.player.speed):
+                self.player.move()
+                self.draw_window()
+                self.draw_player()
+                pygame.display.update()
+                timer_count = 0
+
 
     def draw_window(self):
         self.screen.fill((30, 30, 30)) # 背景の設定
