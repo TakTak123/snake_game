@@ -1,6 +1,7 @@
 import sys 
 import pygame
 from pygame.locals import *
+from random import randint
 
 BLOCK_SIZE = 16
 ROW_COUNT = 20
@@ -9,6 +10,7 @@ AREA_WIDTH = BLOCK_SIZE * COLUMN_COUNT
 AREA_HEIGHT = BLOCK_SIZE * ROW_COUNT
 WIN_WIDTH = AREA_WIDTH + 200
 WIN_HEIGHT = AREA_HEIGHT + 200
+
 UP = 0
 RIGHT = 1
 DOWN = 2
@@ -43,6 +45,16 @@ class Player:
             self.x.insert(0, self.x[0]-1)
             self.y.insert(0, self.y[0])
 
+class Feed:
+    def __init__(self, player):
+        self.create_feed(player)
+
+    def create_feed(self, player):
+        self.x = randint(2, COLUMN_COUNT-3)
+        self.y = randint(2, ROW_COUNT-3)
+        while ((self.x == player.x) and (self.y == player.y)):
+            self.create_feed(player)
+
 class App:
     screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
     # player = 0
@@ -51,8 +63,10 @@ class App:
         pygame.init()
         pygame.display.set_caption('Snake Game')
         self.player = Player()
-        self.draw_window()
-        self.draw_player()
+        self.feed = Feed(self.player)
+        # self.draw_window()
+        # self.draw_player()
+        # self.draw_feed()
         pygame.display.update()
 
         timer_count = 0
@@ -68,7 +82,8 @@ class App:
                     if event.key == K_DOWN:
                         self.player.direction = DOWN
                     self.draw_window()
-                    self.draw_player()  
+                    self.draw_player() 
+                    self.draw_feed() 
 
                 if event.type == QUIT:
                     pygame.quit()
@@ -78,8 +93,12 @@ class App:
             timer_count += 1
             if (timer_count == 60000/self.player.speed): # playerの移動
                 self.player.move()
+                if (self.player.x[0] == self.feed.x and self.player.y[0] == self.feed.y):
+                    self.feed.create_feed(self.player)
+                    
                 self.draw_window()
                 self.draw_player()
+                self.draw_feed()
                 pygame.display.update()
                 timer_count = 0
 
@@ -109,7 +128,13 @@ class App:
             rect = pygame.Rect(20+BLOCK_SIZE*self.player.x[i], 20+BLOCK_SIZE*self.player.y[i], BLOCK_SIZE, BLOCK_SIZE)
             pygame.draw.rect(self.screen, (80, 200, 120), rect)       
             
+    def draw_feed(self): # 
+        rect = pygame.Rect(20+BLOCK_SIZE*self.feed.x, 20+BLOCK_SIZE*self.feed.y, BLOCK_SIZE, BLOCK_SIZE)
+        pygame.draw.rect(self.screen, (200, 80, 120), rect)
 
- 
+    # def check_eat(self, player, feed):
+    #     if (player.x == feed.x and player.y == feed.y):
+    #         feed.create_feed(player)
+
 if __name__ == '__main__':
     app = App()
