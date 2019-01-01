@@ -72,7 +72,6 @@ class App():
         self.player = Player()
         self.feed = Feed(self.player)
         self.score_board = ScoreBoard()
-        self.draw_window()
         pygame.display.update()
         timer_count = 0
         
