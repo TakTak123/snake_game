@@ -64,6 +64,16 @@ class Feed:
         rect = pygame.Rect(20+BLOCK_SIZE*self.x, 20+BLOCK_SIZE*self.y, BLOCK_SIZE, BLOCK_SIZE)
         pygame.draw.rect(screen, (200, 80, 120), rect)
 
+class ScoreBoard():
+    def __init__(self):
+        self.font = pygame.font.SysFont('Ricty Diminished Regular.ttf', 20)
+        self.score = 0
+
+    def draw(self, screen):
+        score_img = self.font.render(str(self.score), True, (200, 200, 200))
+        screen.blit(score_img, (600, 100))
+
+
 class App:
     screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 
@@ -72,6 +82,7 @@ class App:
         pygame.display.set_caption('Snake Game')
         self.player = Player()
         self.feed = Feed(self.player)
+        self.score_board = ScoreBoard()
         pygame.display.update()
 
         timer_count = 0
@@ -89,6 +100,7 @@ class App:
                     self.draw_window()
                     self.player.draw(self.screen) 
                     self.feed.draw(self.screen) 
+                    self.score_board.draw(self.screen)
 
                 if event.type == QUIT:
                     pygame.quit()
@@ -104,6 +116,7 @@ class App:
                 self.draw_window()
                 self.player.draw(self.screen) 
                 self.feed.draw(self.screen)
+                self.score_board.draw(self.screen)
                 pygame.display.update()
                 timer_count = 0
 
