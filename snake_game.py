@@ -23,6 +23,7 @@ class Player:
         self.length = 3
         self.speed = 1
         self.direction = RIGHT # 初期移動方向は右
+        self.feed_count = 0 # 食べた回数
 
     def move(self): #x,yの後ろを吐き出して，先頭に座標を追加することで移動
         self.x.pop() 
@@ -44,7 +45,22 @@ class Player:
             # self.x -= 1
             self.x.insert(0, self.x[0]-1)
             self.y.insert(0, self.y[0])
-    
+
+    def grow(self): # とりあえず進行方向と逆向きに成長，けど壁に埋まる可能性
+        if (self.direction == UP):
+            self.x.append(self.x[-1])
+            self.y.append(self.y[-1] - 1)
+        elif (self.direction == RIGHT):
+            self.x.append(self.x[-1] - 1)
+            self.y.append(self.y[-1])
+        elif (self.direction == DOWN):
+            self.x.append(self.x[-1])
+            self.y.append(self.y[-1] + 1)
+        else:
+            self.x.append(self.x[-1] + 1)
+            self.y.append(self.y[-1])
+
+        self.length += 1
     def draw(self, screen):
         for i in range(self.length):
             rect = pygame.Rect(20+BLOCK_SIZE*self.x[i], 20+BLOCK_SIZE*self.y[i], BLOCK_SIZE, BLOCK_SIZE)
@@ -66,7 +82,7 @@ class Feed:
 
 class ScoreBoard():
     def __init__(self):
-        self.font = pygame.font.SysFont('Ricty Diminished Regular.ttf', 20)
+        self.font = pygame.font.SysFont(None, 20)
         self.score = 0
 
     def draw(self, screen):
@@ -112,7 +128,14 @@ class App:
                 self.player.move()
                 if (self.player.x[0] == self.feed.x and self.player.y[0] == self.feed.y):
                     self.feed.create_feed(self.player)
-                    
+                    self.player.feed_count += 1
+                    self.score_board.score += 10
+    
+                    if (self.player.feed_count % 3 == 0):
+                        self.player.grow()
+                        print(self.player.x)
+                        print(self.player.y)
+                        print('\n')
                 self.draw_window()
                 self.player.draw(self.screen) 
                 self.feed.draw(self.screen)
