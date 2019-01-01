@@ -16,7 +16,7 @@ RIGHT = 1
 DOWN = 2
 LEFT = 3
 
-class Player():
+class Player:
     def __init__(self):
         self.x = [10, 9, 8]
         self.y = [10, 10, 10]
@@ -45,7 +45,7 @@ class Player():
             self.x.insert(0, self.x[0]-1)
             self.y.insert(0, self.y[0])
 
-class Feed():
+class Feed:
     def __init__(self, player):
         self.create_feed(player)
 
@@ -55,14 +55,7 @@ class Feed():
         while ((self.x == player.x) and (self.y == player.y)):
             self.create_feed(player)
 
-class ScoreBoard():
-    def __init__(self):
-        self.font = pygame.font.SysFont('Ricty Diminished Regular.ttf', 20)
-        self.score = 0
-    
-    
-
-class App():
+class App:
     screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
     # player = 0
 
@@ -71,10 +64,12 @@ class App():
         pygame.display.set_caption('Snake Game')
         self.player = Player()
         self.feed = Feed(self.player)
-        self.score_board = ScoreBoard()
+        # self.draw_window()
+        # self.draw_player()
+        # self.draw_feed()
         pygame.display.update()
+
         timer_count = 0
-        
         while True:
             for event in pygame.event.get():
                 if event.type == KEYDOWN:
@@ -89,7 +84,6 @@ class App():
                     self.draw_window()
                     self.draw_player() 
                     self.draw_feed() 
-                    self.draw_score_board()
 
                 if event.type == QUIT:
                     pygame.quit()
@@ -105,7 +99,6 @@ class App():
                 self.draw_window()
                 self.draw_player()
                 self.draw_feed()
-                self.draw_score_board()
                 pygame.display.update()
                 timer_count = 0
 
@@ -139,9 +132,6 @@ class App():
         rect = pygame.Rect(20+BLOCK_SIZE*self.feed.x, 20+BLOCK_SIZE*self.feed.y, BLOCK_SIZE, BLOCK_SIZE)
         pygame.draw.rect(self.screen, (200, 80, 120), rect)
 
-    def draw_score_board(self):
-        score_img = self.score_board.font.render(str(self.score_board.score), True, (200, 200, 200))
-        self.screen.blit(score_img, (600, 100))
     # def check_eat(self, player, feed):
     #     if (player.x == feed.x and player.y == feed.y):
     #         feed.create_feed(player)
