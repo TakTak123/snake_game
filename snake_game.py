@@ -1,3 +1,6 @@
+'''
+- Bug: 成長時に新たに生成されるマスとえさのマスが被るとフリーズ．
+'''
 import sys 
 import pygame
 from pygame.locals import *
@@ -61,6 +64,8 @@ class Player:
             self.y.append(self.y[-1])
 
         self.length += 1
+        self.speed += 0.2 # 成長時に速度＋
+
     def draw(self, screen):
         for i in range(self.length):
             rect = pygame.Rect(20+BLOCK_SIZE*self.x[i], 20+BLOCK_SIZE*self.y[i], BLOCK_SIZE, BLOCK_SIZE)
@@ -81,13 +86,16 @@ class Feed:
         pygame.draw.rect(screen, (200, 80, 120), rect)
 
 class ScoreBoard():
-    def __init__(self):
-        self.font = pygame.font.SysFont(None, 20)
+    def __init__(self, screen):
+        self.font = pygame.font.SysFont('Consolas', 16)
         self.score = 0
 
     def draw(self, screen):
-        score_img = self.font.render(str(self.score), True, (200, 200, 200))
-        screen.blit(score_img, (600, 100))
+        score_img = self.font.render('Score: '+'     '+str(self.score), True, (200, 200, 200))
+        screen.blit(score_img, (550, 100))
+
+        rect = pygame.Rect(520, 80, 150, 100)
+        pygame.draw.rect(screen, (200, 200, 200), rect, 1)
 
 
 class App:
@@ -98,7 +106,7 @@ class App:
         pygame.display.set_caption('Snake Game')
         self.player = Player()
         self.feed = Feed(self.player)
-        self.score_board = ScoreBoard()
+        self.score_board = ScoreBoard(self.screen)
         pygame.display.update()
 
         timer_count = 0
@@ -127,15 +135,14 @@ class App:
             if (timer_count == 60000/self.player.speed): # playerの移動
                 self.player.move()
                 if (self.player.x[0] == self.feed.x and self.player.y[0] == self.feed.y):
-                    self.feed.create_feed(self.player)
                     self.player.feed_count += 1
                     self.score_board.score += 10
     
                     if (self.player.feed_count % 3 == 0):
                         self.player.grow()
-                        print(self.player.x)
-                        print(self.player.y)
-                        print('\n')
+                        
+                    self.feed.create_feed(self.player) # grow()のあとに呼び出して最後尾との重複を回避．
+
                 self.draw_window()
                 self.player.draw(self.screen) 
                 self.feed.draw(self.screen)
