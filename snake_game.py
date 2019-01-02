@@ -15,14 +15,16 @@ AREA_HEIGHT = BLOCK_SIZE * ROW_COUNT
 WIN_WIDTH = AREA_WIDTH + 200
 WIN_HEIGHT = AREA_HEIGHT + 200
 
-UP = 0
-RIGHT = 1
-DOWN = 2
-LEFT = 3
+# UP = 0
+# RIGHT = 1
+# DOWN = 2
+# LEFT = 3
+UP, RIGHT, DOWN, LEFT = (0, 1, 2, 3)
+START, PLAY, GAMEOVER = (0, 1, 2)
 
 class Player:
     def __init__(self):
-        self.x = [10, 9, 8]
+        self.x = [10, 9, 8] # 左上の壁が[0, 0]
         self.y = [10, 10, 10]
         self.length = 3
         self.speed = 0
@@ -65,9 +67,11 @@ class Player:
             self.y.append(self.y[-1])
 
         self.length += 1
+
+        # ---速度の調整---
         self.speed += 8000 # 成長時に速度＋
         if (60000 - self.speed < 3000):
-            self.speed = 2000
+            self.speed = 58000
 
     def draw(self, screen):
         for i in range(self.length):
@@ -102,11 +106,12 @@ class ScoreBoard():
 
 
 class App:
-    screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 
     def __init__(self):
         pygame.init()
+        self.screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
         pygame.display.set_caption('Snake Game')
+        self.game_state = START
         self.player = Player()
         self.feed = Feed(self.player)
         self.score_board = ScoreBoard(self.screen)
@@ -147,13 +152,31 @@ class App:
                         
                     self.feed.create_feed(self.player) # grow()のあとに呼び出して最後尾との重複を回避．
 
+                self.detect_collision()
+        
                 self.draw_window()
                 self.player.draw(self.screen) 
                 self.feed.draw(self.screen)
                 self.score_board.draw(self.screen)
                 pygame.display.update()
                 timer_count = 0
+            
+            if (self.game_state == GAMEOVER):
+                font = pygame.font.SysFont('Consolas', 80)
+                gameover_img = font.render('Game Over', True, (200, 80, 80))
+                self.screen.blit(gameover_img, (WIN_WIDTH/2 - 200, WIN_HEIGHT/2 + 150))
+                pygame.display.update()
+                while (True):
+                    for event in pygame.event.get():
+                        if event.type == QUIT:
+                            pygame.quit()
+                            sys.exit
 
+    def detect_collision(self): 
+        if (self.player.x[0] == 0 or self.player.x[0] == COLUMN_COUNT-1):
+            self.game_state = GAMEOVER
+        elif (self.player.y[0] == 0 or self.player.y[0] == ROW_COUNT-1):
+            self.game_state = GAMEOVER
 
     def draw_window(self):
         self.screen.fill((30, 30, 30)) # 背景の設定
