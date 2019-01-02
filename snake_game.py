@@ -1,5 +1,6 @@
 '''
-- Bug: 成長時に新たに生成されるマスとえさのマスが被るとフリーズ．
+- Bug: 3回成長するとフリーズ．
+  -> 60000/self.player.speedが小数になるようなspeedにしてたのが原因．
 '''
 import sys 
 import pygame
@@ -24,7 +25,7 @@ class Player:
         self.x = [10, 9, 8]
         self.y = [10, 10, 10]
         self.length = 3
-        self.speed = 1
+        self.speed = 0
         self.direction = RIGHT # 初期移動方向は右
         self.feed_count = 0 # 食べた回数
 
@@ -64,7 +65,9 @@ class Player:
             self.y.append(self.y[-1])
 
         self.length += 1
-        self.speed += 0.2 # 成長時に速度＋
+        self.speed += 8000 # 成長時に速度＋
+        if (60000 - self.speed < 3000):
+            self.speed = 2000
 
     def draw(self, screen):
         for i in range(self.length):
@@ -78,7 +81,7 @@ class Feed:
     def create_feed(self, player):
         self.x = randint(2, COLUMN_COUNT-3)
         self.y = randint(2, ROW_COUNT-3)
-        while ((self.x == player.x) and (self.y == player.y)):
+        while ((self.x == player.x[0]) and (self.y == player.y[0])):
             self.create_feed(player)
     
     def draw(self, screen): 
@@ -91,8 +94,8 @@ class ScoreBoard():
         self.score = 0
 
     def draw(self, screen):
-        score_img = self.font.render('Score: '+'     '+str(self.score), True, (200, 200, 200))
-        screen.blit(score_img, (550, 100))
+        score_img = self.font.render('Score: '+'   '+str(self.score), True, (200, 200, 200))
+        screen.blit(score_img, (530, 100))
 
         rect = pygame.Rect(520, 80, 150, 100)
         pygame.draw.rect(screen, (200, 200, 200), rect, 1)
@@ -132,11 +135,12 @@ class App:
                 pygame.display.update()
             
             timer_count += 1
-            if (timer_count == 60000/self.player.speed): # playerの移動
+            
+            if (timer_count == 60000 - self.player.speed): # playerの移動
                 self.player.move()
                 if (self.player.x[0] == self.feed.x and self.player.y[0] == self.feed.y):
                     self.player.feed_count += 1
-                    self.score_board.score += 10
+                    self.score_board.score += 10 * self.player.length
     
                     if (self.player.feed_count % 3 == 0):
                         self.player.grow()
