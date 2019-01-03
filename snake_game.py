@@ -1,7 +1,3 @@
-'''
-- Bug: 3回成長するとフリーズ．
-  -> 60000/self.player.speedが小数になるようなspeedにしてたのが原因．
-'''
 import sys 
 import pygame
 from pygame.locals import *
@@ -27,7 +23,7 @@ class Player:
         self.x = [10, 9, 8] # 左上の壁が[0, 0]
         self.y = [10, 10, 10]
         self.length = 3
-        self.speed = 0
+        self.speed = 1
         self.direction = RIGHT # 初期移動方向は右
         self.feed_count = 0 # 食べた回数
 
@@ -69,9 +65,9 @@ class Player:
         self.length += 1
 
         # ---速度の調整---
-        self.speed += 8000 # 成長時に速度＋
-        if (60000 - self.speed < 3000):
-            self.speed = 58000
+        self.speed += 0.4 # 成長時に速度＋
+        if (60000 / self.speed < 3000):
+            self.speed = 20
 
     def draw(self, screen):
         for i in range(self.length):
@@ -96,6 +92,9 @@ class ScoreBoard():
     def __init__(self, screen):
         self.font = pygame.font.SysFont('Consolas', 16)
         self.score = 0
+
+    def add_score(self, player):
+        self.score += 10 * player.length
 
     def draw(self, screen):
         score_img = self.font.render('Score: '+'   '+str(self.score), True, (200, 200, 200))
@@ -141,11 +140,11 @@ class App:
             
             timer_count += 1
             
-            if (timer_count == 60000 - self.player.speed): # playerの移動
+            if (timer_count == round(60000 / self.player.speed)): # playerの移動
                 self.player.move()
                 if (self.player.x[0] == self.feed.x and self.player.y[0] == self.feed.y):
                     self.player.feed_count += 1
-                    self.score_board.score += 10 * self.player.length
+                    self.score_board.add_score(self.player)
     
                     if (self.player.feed_count % 3 == 0):
                         self.player.grow()
@@ -164,10 +163,12 @@ class App:
             if (self.game_state == GAMEOVER):
                 font = pygame.font.SysFont('Consolas', 80)
                 gameover_img = font.render('Game Over', True, (200, 80, 80))
-                self.screen.blit(gameover_img, (WIN_WIDTH/2 - 200, WIN_HEIGHT/2 + 150))
+                self.screen.blit(gameover_img, (WIN_WIDTH/2 - 200, WIN_HEIGHT/2 + 100))
                 pygame.display.update()
                 while (True):
                     for event in pygame.event.get():
+                        # if event.type == K_r:
+                            
                         if event.type == QUIT:
                             pygame.quit()
                             sys.exit
